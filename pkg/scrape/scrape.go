@@ -120,6 +120,7 @@ func registerAlternateScraper(id string, name string, avatarURL string, domain s
 }
 
 func logScrapeStart(id string, name string) {
+	resetScrapeCounts(id)
 	log.WithFields(logrus.Fields{
 		"task":      "scraperProgress",
 		"scraperID": id,
@@ -130,12 +131,16 @@ func logScrapeStart(id string, name string) {
 }
 
 func logScrapeFinished(id string, name string) {
+	recognised, added := ScrapeCounts(id)
+	models.RecordScrapeHealth(id, recognised, added)
 	log.WithFields(logrus.Fields{
-		"task":      "scraperProgress",
-		"scraperID": id,
-		"progress":  0,
-		"started":   false,
-		"completed": true,
+		"task":       "scraperProgress",
+		"scraperID":  id,
+		"progress":   0,
+		"started":    false,
+		"completed":  true,
+		"recognised": recognised,
+		"added":      added,
 	}).Infof("Finished %v scraper", name)
 }
 

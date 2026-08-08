@@ -134,7 +134,7 @@ func VRXDB(wg *models.ScrapeWG, updateSite bool, knownScenes []string, out chan<
 			strings.TrimSuffix(sceneURL, "/") == "https://vrxdb.com/vr-porn-videos" {
 			return
 		}
-		if !funk.ContainsString(knownScenes, sceneURL) {
+		if !isKnownScene(scraperID, knownScenes, sceneURL) {
 			sceneCollector.Visit(sceneURL)
 		}
 	})

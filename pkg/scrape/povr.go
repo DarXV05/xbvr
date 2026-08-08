@@ -10,7 +10,6 @@ import (
 
 	"github.com/gocolly/colly/v2"
 	"github.com/nleeper/goment"
-	"github.com/thoas/go-funk"
 	"github.com/xbapps/xbvr/pkg/config"
 	"github.com/xbapps/xbvr/pkg/models"
 )
@@ -127,7 +126,7 @@ func POVR(wg *models.ScrapeWG, updateSite bool, knownScenes []string, out chan<-
 		sceneURL := e.Request.AbsoluteURL(e.Attr("href"))
 
 		// If scene exists in database, or the slternate source exists, there's no need to scrape. Also make sure we only grab valid scene links in the vr-porn directory
-		if !funk.ContainsString(knownScenes, sceneURL) && strings.Contains(sceneURL, "/vr-porn/") && !strings.Contains(sceneURL, "/join") {
+		if !isKnownScene(scraperID, knownScenes, sceneURL) && strings.Contains(sceneURL, "/vr-porn/") && !strings.Contains(sceneURL, "/join") {
 			WaitBeforeVisit("povr.com", sceneCollector.Visit, sceneURL)
 		}
 	})

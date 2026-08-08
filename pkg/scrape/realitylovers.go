@@ -7,7 +7,6 @@ import (
 	"github.com/gocolly/colly/v2"
 	"github.com/mozillazg/go-slugify"
 	"github.com/nleeper/goment"
-	"github.com/thoas/go-funk"
 	"github.com/xbapps/xbvr/pkg/models"
 )
 
@@ -127,7 +126,7 @@ func RealityLoversSite(wg *models.ScrapeWG, updateSite bool, knownScenes []strin
 			sceneURL := strings.TrimSuffix(e.Request.AbsoluteURL(e.ChildAttr("a", "href")), "/")
 
 			// If scene exist in database, there's no need to scrape
-			if !funk.ContainsString(knownScenes, sceneURL) {
+			if !isKnownScene(scraperID, knownScenes, sceneURL) {
 				ctx := colly.NewContext()
 				ctx.Put("coverURL", coverURL)
 				ctx.Put("title", title)

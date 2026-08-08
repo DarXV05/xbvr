@@ -10,7 +10,6 @@ import (
 
 	"github.com/gocolly/colly/v2"
 	"github.com/mozillazg/go-slugify"
-	"github.com/thoas/go-funk"
 
 	"github.com/xbapps/xbvr/pkg/models"
 )
@@ -168,7 +167,7 @@ func SexBabesVR(wg *models.ScrapeWG, updateSite bool, knownScenes []string, out 
 	siteCollector.OnHTML(`div.videos__content`, func(e *colly.HTMLElement) {
 		e.ForEach(`a.video-container__image`, func(cnt int, e *colly.HTMLElement) {
 			sceneURL := e.Request.AbsoluteURL(e.Attr("href"))
-			if !funk.ContainsString(knownScenes, sceneURL) {
+			if !isKnownScene(scraperID, knownScenes, sceneURL) {
 				sceneCollector.Visit(sceneURL)
 			}
 		})

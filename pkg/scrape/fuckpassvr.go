@@ -11,7 +11,6 @@ import (
 	"github.com/go-resty/resty/v2"
 	"github.com/gocolly/colly/v2"
 	"github.com/nleeper/goment"
-	"github.com/thoas/go-funk"
 	"github.com/xbapps/xbvr/pkg/config"
 	"github.com/xbapps/xbvr/pkg/models"
 )
@@ -142,7 +141,7 @@ func FuckPassVR(wg *models.ScrapeWG, updateSite bool, knownScenes []string, out 
 
 	siteCollector.OnHTML(`div.videos__element a.videos__videoTitle`, func(e *colly.HTMLElement) {
 		sceneURL := e.Request.AbsoluteURL(e.Attr("href"))
-		if !funk.ContainsString(knownScenes, sceneURL) {
+		if !isKnownScene(scraperID, knownScenes, sceneURL) {
 			sceneCollector.Visit(sceneURL)
 		}
 	})

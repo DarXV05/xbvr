@@ -45,6 +45,13 @@
       <b-table-column field="source" :label="$t('Source')" sortable searchable v-slot="props">
         {{ props.row.source }}
       </b-table-column>
+      <b-table-column field="health" :label="$t('Health')" sortable v-slot="props" width="90" cell-class="no-wrap">
+        <b-tooltip v-if="props.row.health === 'suspect'" :label="suspectTooltip(props.row)" position="is-right" multilined>
+          <b-tag type="is-danger">{{ $t('suspect') }}</b-tag>
+        </b-tooltip>
+        <b-tag v-else-if="props.row.health === 'ok'" type="is-success is-light">{{ $t('ok') }}</b-tag>
+        <span v-else>-</span>
+      </b-table-column>
       <b-table-column field="last_update" :label="$t('Last scrape')" sortable v-slot="props" cell-class="no-wrap">
             <span :class="[runningScrapers.includes(props.row.id) ? 'invisible' : '']">
               <span v-if="props.row.last_update !== '0001-01-01T00:00:00Z'">
@@ -189,6 +196,12 @@ export default {
     this.$store.dispatch('optionsWeb/load')
   },
   methods: {
+    suspectTooltip (row) {
+      if (row.last_seen_at && row.last_seen_at !== '0001-01-01T00:00:00Z') {
+        return this.$t('No scenes recognised since') + ' ' + this.formatCompactTimeAgo(row.last_seen_at)
+      }
+      return this.$t('No scenes have ever been recognised for this site')
+    },
     getImageURL (u) {
       if (u.startsWith('http')) {
         return '/img/128x/' + u.replace('://', ':/')

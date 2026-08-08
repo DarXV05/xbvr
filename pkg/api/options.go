@@ -449,9 +449,31 @@ func (i ConfigResource) listSitesWithDB(req *restful.Request, resp *restful.Resp
 		scraperSet[scraper.ID] = true
 	}
 
+	var healthRows []models.SiteHealth
+	db.Find(&healthRows)
+	healthMap := make(map[string]models.SiteHealth)
+	for _, h := range healthRows {
+		healthMap[h.SiteID] = h
+	}
+
 	for idx, site := range sites {
 		sites[idx].HasScraper = scraperSet[site.ID]
 		sites[idx].SceneCount = countMap[site.ID]
+
+		// Only a site that has actually recognised scenes may be called ok.
+		// No record, or a record that has never recognised anything, is
+		// unknown - claiming health for something unmeasured is the bug this
+		// is meant to expose.
+		h, recorded := healthMap[site.ID]
+		sites[idx].LastSeenAt = h.LastSeenAt
+		switch {
+		case h.Suspect():
+			sites[idx].Health = "suspect"
+		case !recorded || h.LastSeenAt.IsZero():
+			sites[idx].Health = "unknown"
+		default:
+			sites[idx].Health = "ok"
+		}
 	}
 	resp.WriteHeaderAndEntity(http.StatusOK, sites)
 }

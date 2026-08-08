@@ -11,7 +11,6 @@ import (
 
 	"github.com/go-resty/resty/v2"
 	"github.com/gocolly/colly/v2"
-	"github.com/thoas/go-funk"
 	"github.com/tidwall/gjson"
 	"github.com/xbapps/xbvr/pkg/config"
 	"github.com/xbapps/xbvr/pkg/models"
@@ -134,7 +133,7 @@ func VRPorn(wg *models.ScrapeWG, updateSite bool, knownScenes []string, out chan
 			itemList := jsonData.Get("data.items")
 			itemList.ForEach(func(_, scene gjson.Result) bool {
 				slug := scene.Get("slug").String()
-				if !funk.ContainsString(knownScenes, "https://vrporn.com/"+slug+"/") {
+				if !isKnownScene(scraperID, knownScenes, "https://vrporn.com/"+slug+"/") {
 					apiCollector.Visit("https://vrporn.com/proxy/api/content/v1/post/" + slug)
 				}
 				return true

@@ -367,7 +367,7 @@ func VRSpy(wg *models.ScrapeWG, updateSite bool, knownScenes []string, out chan<
 
 	siteCollector.OnHTML(`.item-wrapper .photo a`, func(e *colly.HTMLElement) {
 		sceneURL := e.Request.AbsoluteURL(e.Attr("href"))
-		if !funk.ContainsString(knownScenes, sceneURL) && !funk.ContainsString(sceneURLs, sceneURL) {
+		if !isKnownScene(scraperID, knownScenes, sceneURL) && !funk.ContainsString(sceneURLs, sceneURL) {
 			sceneURLs = append(sceneURLs, sceneURL)
 		}
 	})
@@ -375,7 +375,7 @@ func VRSpy(wg *models.ScrapeWG, updateSite bool, knownScenes []string, out chan<
 	// Fallback selector for scene links
 	siteCollector.OnHTML(`.video-section a.photo-preview`, func(e *colly.HTMLElement) {
 		sceneURL := e.Request.AbsoluteURL(e.Attr("href"))
-		if !funk.ContainsString(knownScenes, sceneURL) && !funk.ContainsString(sceneURLs, sceneURL) {
+		if !isKnownScene(scraperID, knownScenes, sceneURL) && !funk.ContainsString(sceneURLs, sceneURL) {
 			sceneURLs = append(sceneURLs, sceneURL)
 		}
 	})

@@ -1,12 +1,13 @@
 package scrape
 
 import (
+	"strconv"
+	"strings"
+
 	"github.com/PuerkitoBio/goquery"
 	"github.com/gocolly/colly/v2"
 	"github.com/nleeper/goment"
 	"github.com/xbapps/xbvr/pkg/models"
-	"strconv"
-	"strings"
 )
 
 func ScrapeJavDB(out *[]models.ScrapedScene, queryString string) {

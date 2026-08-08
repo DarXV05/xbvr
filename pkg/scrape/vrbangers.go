@@ -8,7 +8,6 @@ import (
 	"github.com/gocolly/colly/v2"
 	"github.com/mozillazg/go-slugify"
 	"github.com/nleeper/goment"
-	"github.com/thoas/go-funk"
 	"github.com/tidwall/gjson"
 	"github.com/xbapps/xbvr/pkg/models"
 )
@@ -143,7 +142,7 @@ func VRBangersSite(wg *models.ScrapeWG, updateSite bool, knownScenes []string, o
 		url := strings.Split(e.Attr("href"), "?")[0]
 		sceneURL := e.Request.AbsoluteURL(url)
 
-		if !funk.ContainsString(knownScenes, sceneURL) {
+		if !isKnownScene(scraperID, knownScenes, sceneURL) {
 			sceneCollector.Visit(sceneURL)
 		}
 	})

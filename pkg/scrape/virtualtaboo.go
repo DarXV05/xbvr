@@ -133,7 +133,7 @@ func VirtualTaboo(wg *models.ScrapeWG, updateSite bool, knownScenes []string, ou
 		sceneURL := e.Request.AbsoluteURL(e.Attr("href"))
 
 		// If scene exist in database, there's no need to scrape
-		if !funk.ContainsString(knownScenes, sceneURL) {
+		if !isKnownScene(scraperID, knownScenes, sceneURL) {
 			sceneCollector.Visit(sceneURL)
 		}
 	})

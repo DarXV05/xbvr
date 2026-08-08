@@ -158,7 +158,7 @@ func LethalHardcoreSite(wg *models.ScrapeWG, updateSite bool, knownScenes []stri
 			}
 			for i := range hits {
 				sc := lethalHardcoreScene(jsonString, "results.0.hits."+strconv.Itoa(i), scraperID, siteID, siteHost)
-				if sc.SceneID != "" && !funk.ContainsString(knownScenes, sc.HomepageURL) {
+				if sc.SceneID != "" && !isKnownScene(scraperID, knownScenes, sc.HomepageURL) {
 					out <- sc
 				}
 			}
