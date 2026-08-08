@@ -1,0 +1,33 @@
+schema: spec-driven
+
+context: |
+  XBVR — a self-hosted VR video library manager. This is DarXV05's fork of
+  xbapps/xbvr, run on Docker/amd64 in a homelab. Upstream is near-dormant and
+  contribution is opt-in per change, never assumed.
+
+  Backend: Go. go-restful API, gorm over SQLite (cgo, requires -tags=json1),
+  bleve search index, colly-based scrapers (~45 sites), a vendored DLNA/UPnP
+  stack, and WAMP for pushing progress to the UI.
+  Frontend: Vue 2 + Vuex + Buefy, built by vue-cli and embedded with go:embed.
+
+  Two mechanisms worth knowing before proposing anything:
+  - Scenes and files are separate records joined by filename. Scrapers predict
+    the filenames a site produces; volume scanning matches them with a LIKE
+    query against filenames_arr.
+  - User edits survive re-scraping via a replay log. Edits write rows to the
+    actions table and are re-applied after each scrape. A new editable field
+    that does not write an Action is silently lost on the next scrape.
+
+  Releases: changesets owns the version. Merging the version PR pushes a tag,
+  which builds and publishes ghcr.io/darxv05/xbvr. The docker image is the only
+  artifact.
+
+  Every change lands on its own branch through a PR into this fork. Never commit
+  to main directly, and never open a PR against xbapps/xbvr unless asked.
+
+rules:
+  proposal:
+    - Say what breaks today and how it is known to break, not what would be nice.
+    - Never include scene titles or performer names. Site and scraper names are fine.
+  tasks:
+    - Prefer verifying against the real system over asserting an outcome.
