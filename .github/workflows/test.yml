@@ -37,6 +37,16 @@ jobs:
             exit 1
           fi
 
+      # ui/fs.go has `//go:embed dist`, and ui/dist is gitignored, so it does not
+      # exist in a fresh checkout - every package that transitively imports ui
+      # fails to build with "pattern dist: no matching files found". A stub is
+      # enough to satisfy the embed; this job tests Go code, and building the real
+      # bundle would add several minutes of yarn install for no extra coverage.
+      - name: Stub the embedded UI bundle
+        run: |
+          mkdir -p ui/dist
+          echo '<!doctype html><title>stub</title>' > ui/dist/index.html
+
       # -tags=json1 is required by the SQLite driver.
       # -vet=off is required until the pre-existing vet findings in scrape, tasks,
       # migrations and dms are fixed; without it `go test` fails to build first.
