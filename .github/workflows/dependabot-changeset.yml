@@ -1,0 +1,59 @@
+name: dependabot changeset
+
+# Dependency PRs merge without a changeset, so no version bump happens and no new
+# image is built - the update never reaches the running instance. This adds one
+# when the update can actually affect the image.
+#
+# pull_request_target is required because bot PRs get a read-only token and no
+# secrets. The PR head is checked out only to commit a file onto it; nothing from
+# the PR is installed, built or executed.
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, labeled]
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  changeset:
+    if: >-
+      github.event.pull_request.user.login == 'dependabot[bot]' ||
+      github.event.pull_request.user.login == 'renovate[bot]' ||
+      github.event.pull_request.user.login == 'app/dependabot' ||
+      github.event.pull_request.user.login == 'app/renovate'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout the PR branch
+        uses: actions/checkout@v6
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
+          token: ${{ secrets.GORELEASER_ACCESS_TOKEN }}
+
+      - name: Decide and write
+        id: decide
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+          FORCED: ${{ contains(github.event.pull_request.labels.*.name, 'needs-release') && 'force' || '' }}
+        run: |
+          git fetch origin "$BASE_REF"
+          python3 .github/scripts/dep_changeset.py "origin/$BASE_REF" "$PR_TITLE" "$HEAD_REF" $FORCED | tee result.txt
+          if grep -q '^wrote ' result.txt; then echo "written=true" >> "$GITHUB_OUTPUT"; fi
+          rm -f result.txt
+
+      - name: Commit the changeset
+        if: steps.decide.outputs.written == 'true'
+        env:
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+        run: |
+          git config user.name "DarXV05"
+          git config user.email "314464483+DarXV05@users.noreply.github.com"
+          git add .changeset
+          git commit -m "chore: add changeset for dependency update"
+          git push origin "HEAD:$HEAD_REF"
