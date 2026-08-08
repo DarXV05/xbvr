@@ -1,5 +1,16 @@
 # xbvr
 
+## 0.7.0
+
+### Minor Changes
+
+- b1607c9: Add a scraper for vrxdb.com. It brings in title, studio, cast, tags, cover, gallery, duration, release date and trailer. It cannot supply filenames, so its scenes will not match files on disk automatically and have to be matched by hand.
+
+### Patch Changes
+
+- ca9df27: Update golang.org/x/net, x/crypto and x/image to versions with security fixes. The x/net one is the meaningful change: its HTML parser handles pages fetched by the scrapers, so a malformed page could previously stall a scrape.
+- c351b9b: Fix the LethalHardcoreVR scraper, which had stopped importing anything after the site moved to a client-rendered app. It now reads the site's own search index instead of the page HTML. WhorecraftVR remains registered but that site no longer has any scenes.
+
 ## 0.6.0
 
 ### Minor Changes
