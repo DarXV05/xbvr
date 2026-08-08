@@ -28,12 +28,23 @@ jobs:
         run:  cd ui && yarn install --ignore-engines && yarn build
 
       - name: Setup release environment
+        env:
+          RELEASE_TOKEN: ${{secrets.GORELEASER_ACCESS_TOKEN}}
+          OWNER: ${{github.event.repository.owner.login}}
+          PROJECT: ${{github.event.repository.name}}
         run: |-
-          echo 'GITHUB_TOKEN=${{secrets.GORELEASER_ACCESS_TOKEN}}' > .release-env
-          echo 'GITHUB_USER=${{github.event.repository.owner.login}}' >> .release-env
-          echo 'GITHUB_PROJECT=${{github.event.repository.name}}' >> .release-env
-          echo 'DOCKER_CREDS_FILE=.docker-creds' >> .release-env
-          echo '${{github.event.repository.owner.login}}:${{secrets.GORELEASER_ACCESS_TOKEN}}:ghcr.io' >> .docker-creds
+          # Docker repository names must be lowercase, but a GitHub owner login
+          # need not be: an owner such as "DarXV05" yields the invalid image tag
+          # ghcr.io/DarXV05/xbvr and the docker build fails. Lowercase both parts.
+          owner=$(echo "$OWNER" | tr '[:upper:]' '[:lower:]')
+          project=$(echo "$PROJECT" | tr '[:upper:]' '[:lower:]')
+          {
+            echo "GITHUB_TOKEN=${RELEASE_TOKEN}"
+            echo "GITHUB_USER=${owner}"
+            echo "GITHUB_PROJECT=${project}"
+            echo "DOCKER_CREDS_FILE=.docker-creds"
+          } > .release-env
+          echo "${owner}:${RELEASE_TOKEN}:ghcr.io" > .docker-creds
 
       - name: Release publish
         run: make release
