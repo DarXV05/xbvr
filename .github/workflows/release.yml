@@ -21,9 +21,6 @@ jobs:
           submodules: 'true'
           fetch-depth: 0
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v4
-
       - name: Build UI
         run:  cd ui && yarn install --ignore-engines && yarn build
 
@@ -33,9 +30,7 @@ jobs:
           OWNER: ${{github.event.repository.owner.login}}
           PROJECT: ${{github.event.repository.name}}
         run: |-
-          # Docker repository names must be lowercase, but a GitHub owner login
-          # need not be: an owner such as "DarXV05" yields the invalid image tag
-          # ghcr.io/DarXV05/xbvr and the docker build fails. Lowercase both parts.
+          # image tags must be lowercase
           owner=$(echo "$OWNER" | tr '[:upper:]' '[:lower:]')
           project=$(echo "$PROJECT" | tr '[:upper:]' '[:lower:]')
           {
