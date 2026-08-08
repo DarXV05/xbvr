@@ -675,7 +675,8 @@ func (i SceneResource) searchSceneIndex(req *restful.Request, resp *restful.Resp
 	}
 
 	defer idx.Bleve.Close()
-	query := bleve.NewQueryStringQuery(q)
+	bleveQuery := strings.NewReplacer("'", " ", "’", " ", "`", " ").Replace(q)
+	query := bleve.NewQueryStringQuery(bleveQuery)
 
 	searchRequest := bleve.NewSearchRequest(query)
 	searchRequest.Fields = []string{"Id", "title", "cast", "site", "description"}
