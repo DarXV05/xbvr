@@ -11,7 +11,6 @@ import (
 	"github.com/go-resty/resty/v2"
 	"github.com/gocolly/colly/v2"
 	"github.com/gosimple/slug"
-	"github.com/thoas/go-funk"
 	"github.com/xbapps/xbvr/pkg/models"
 )
 
@@ -85,7 +84,7 @@ func BaberoticaVR(wg *models.ScrapeWG, updateSite bool, knownScenes []string, ou
 	for _, row := range data {
 		sc := models.ScrapedScene{}
 		sceneURL := row[3]
-		if funk.ContainsString(knownScenes, sceneURL) && sceneURL != singleSceneURL {
+		if isKnownScene(scraperID, knownScenes, sceneURL) && sceneURL != singleSceneURL {
 			continue
 		}
 

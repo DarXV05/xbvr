@@ -12,7 +12,6 @@ import (
 	"time"
 
 	"github.com/go-resty/resty/v2"
-	"github.com/thoas/go-funk"
 	"github.com/tidwall/gjson"
 	"github.com/xbapps/xbvr/pkg/config"
 	"github.com/xbapps/xbvr/pkg/models"
@@ -628,7 +627,7 @@ func SexLikeReal(wg *models.ScrapeWG, updateSite bool, knownScenes []string, out
 				}
 
 				// Process new scenes
-				if !funk.ContainsString(knownScenes, sceneURL) && sceneID != "" && sceneLabel != "" {
+				if !isKnownScene(scraperID, knownScenes, sceneURL) && sceneID != "" && sceneLabel != "" {
 					sem <- struct{}{}
 					apiWG.Add(1)
 					go func(id string, label string, trans bool, gay bool, dur int) {

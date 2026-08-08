@@ -9,7 +9,6 @@ import (
 
 	"github.com/gocolly/colly/v2"
 	"github.com/mozillazg/go-slugify"
-	"github.com/thoas/go-funk"
 	"github.com/xbapps/xbvr/pkg/models"
 )
 
@@ -183,7 +182,7 @@ func KinkVR(wg *models.ScrapeWG, updateSite bool, knownScenes []string, out chan
 	siteCollector.OnHTML(`a[href^="/shoot/"][data-testid$="-link-5"]`, func(e *colly.HTMLElement) {
 		sceneURL := e.Request.AbsoluteURL(e.Attr("href"))
 		// skip if exists
-		if !funk.ContainsString(knownScenes, sceneURL) {
+		if !isKnownScene(scraperID, knownScenes, sceneURL) {
 			sceneCollector.Visit(sceneURL)
 		}
 	})

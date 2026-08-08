@@ -10,9 +10,10 @@ when the scene selector matched nothing — which is exactly the case that must 
 
 Two facts about the existing code make a narrow intervention possible:
 
-- 39 of 52 files in `pkg/scrape` call `funk.ContainsString(knownScenes, sceneURL)` to
-  decide whether a link is worth visiting — 41 call sites, 29 of them character-identical
-  (`if !funk.ContainsString(knownScenes, sceneURL) {`).
+- 41 of 53 files in `pkg/scrape` call `funk.ContainsString(knownScenes, sceneURL)` to
+  decide whether a link is worth visiting — 43 call sites, most of them character-identical
+  (`if !funk.ContainsString(knownScenes, sceneURL) {`). One, `r18.go`, has no scraper id in
+  scope at the call site and is left out of the first pass.
 - That call sits exactly at the point where a link has been recognised as a scene and
   before the decision to skip it. It runs for known and unknown scenes alike, which is
   what separates "nothing new" from "nothing found".

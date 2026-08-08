@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"image"
+
 	// image.Decode below only recognises formats whose decoder has been registered.
 	// This package registers none of its own, so cover validation silently rejected
 	// every image except in builds that happened to pull in a decoder elsewhere.
@@ -16,7 +17,6 @@ import (
 
 	"github.com/gocolly/colly/v2"
 	"github.com/mozillazg/go-slugify"
-	"github.com/thoas/go-funk"
 	"github.com/xbapps/xbvr/pkg/models"
 )
 
@@ -222,7 +222,7 @@ func VirtualRealPornSite(wg *models.ScrapeWG, updateSite bool, knownScenes []str
 			siteCollector.Visit(fmt.Sprintf("%svideos/?page=%v", URL, page))
 		}
 
-		if !funk.ContainsString(knownScenes, sceneURL) {
+		if !isKnownScene(scraperID, knownScenes, sceneURL) {
 			sceneCollector.Visit(sceneURL)
 		}
 	})

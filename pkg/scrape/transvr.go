@@ -9,7 +9,6 @@ import (
 	"github.com/gocolly/colly/v2"
 	"github.com/mozillazg/go-slugify"
 	"github.com/nleeper/goment"
-	"github.com/thoas/go-funk"
 	"github.com/xbapps/xbvr/pkg/models"
 )
 
@@ -96,7 +95,7 @@ func TransVR(wg *models.ScrapeWG, updateSite bool, knownScenes []string, out cha
 		sceneURL := e.Request.AbsoluteURL(e.ChildAttr("a", "href"))
 		cvr := e.Request.AbsoluteURL(e.ChildAttr("img", "src"))
 
-		if !funk.ContainsString(knownScenes, sceneURL) {
+		if !isKnownScene(scraperID, knownScenes, sceneURL) {
 			ctx := colly.NewContext()
 			ctx.Put("cover", cvr)
 			sceneCollector.Request("GET", sceneURL, nil, ctx, nil)

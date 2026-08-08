@@ -9,7 +9,6 @@ import (
 	"github.com/gocolly/colly/v2"
 	"github.com/mozillazg/go-slugify"
 	"github.com/nleeper/goment"
-	"github.com/thoas/go-funk"
 	"github.com/tidwall/gjson"
 	"github.com/xbapps/xbvr/pkg/models"
 )
@@ -79,7 +78,7 @@ func UpCloseVR(wg *models.ScrapeWG, updateSite bool, knownScenes []string, out c
 					// Check to make sure we don't update scenes we have already collected
 					sceneID := gjson.Get(jsonString, queryStr+`.clip_id`).String()
 					sceneURL := `https://www.upclosevr.com/en/video/upclosevr/` + gjson.Get(jsonString, queryStr+`.url_title`).String() + `/` + sceneID
-					if !funk.ContainsString(knownScenes, sceneURL) || singleSceneURL != "" {
+					if !isKnownScene(scraperID, knownScenes, sceneURL) || singleSceneURL != "" {
 
 						sc := models.ScrapedScene{}
 

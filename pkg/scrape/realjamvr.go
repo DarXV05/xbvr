@@ -11,7 +11,6 @@ import (
 	"github.com/gocolly/colly/v2"
 	"github.com/mozillazg/go-slugify"
 	"github.com/nleeper/goment"
-	"github.com/thoas/go-funk"
 
 	"github.com/xbapps/xbvr/pkg/models"
 )
@@ -187,7 +186,7 @@ func RealJamSite(wg *models.ScrapeWG, updateSite bool, knownScenes []string, out
 		sceneURL = strings.TrimSuffix(sceneURL, "/")
 
 		// If scene exist in database, there's no need to scrape
-		if !funk.ContainsString(knownScenes, sceneURL) && strings.Contains(sceneURL, domain+"/scene/") {
+		if !isKnownScene(scraperID, knownScenes, sceneURL) && strings.Contains(sceneURL, domain+"/scene/") {
 			sceneCollector.Visit(sceneURL)
 		}
 	})

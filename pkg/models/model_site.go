@@ -21,6 +21,8 @@ type Site struct {
 	MatchingParams string    `json:"matching_params" gorm:"size:1000" xbvrbackup:"matching_params"`
 	ScrapeStash    bool      `json:"scrape_stash" xbvrbackup:"scrape_stash"`
 	SceneCount     int       `gorm:"-" json:"scene_count" xbvrbackup:"-"`
+	Health         string    `gorm:"-" json:"health" xbvrbackup:"-"`
+	LastSeenAt     time.Time `gorm:"-" json:"last_seen_at" xbvrbackup:"-"`
 }
 
 func (i *Site) Save() error {

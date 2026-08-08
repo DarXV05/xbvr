@@ -5,7 +5,6 @@ import (
 
 	"github.com/jinzhu/gorm"
 	"github.com/mozillazg/go-slugify"
-	"github.com/thoas/go-funk"
 	"github.com/xbapps/xbvr/pkg/config"
 	"github.com/xbapps/xbvr/pkg/externalreference"
 	"github.com/xbapps/xbvr/pkg/models"
@@ -30,7 +29,7 @@ func StashStudio(wg *models.ScrapeWG, updateSite bool, knownScenes []string, out
 	} else {
 		scenes := getStashdbScenes(stashGuid, "", "", limitScraping)
 		for _, stashScene := range scenes.Data.QueryScenes.Scenes {
-			if !funk.ContainsString(knownScenes, "https://stashdb.org/scenes/"+stashScene.ID) {
+			if !isKnownScene(scraperID, knownScenes, "https://stashdb.org/scenes/"+stashScene.ID) {
 				sc := processScrapedScene(stashScene, masterSiteId, commonDb)
 				out <- sc
 			}

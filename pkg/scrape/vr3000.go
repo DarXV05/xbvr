@@ -92,7 +92,7 @@ func VR3000(wg *models.ScrapeWG, updateSite bool, knownScenes []string, out chan
 			})
 
 			sceneURL := e.Request.AbsoluteURL(e.ChildAttr(`div.welldescription a.btn-primary`, "href"))
-			if !funk.ContainsString(knownScenes, sceneURL) && !strings.Contains(sceneURL, "/join") {
+			if !isKnownScene(scraperID, knownScenes, sceneURL) && !strings.Contains(sceneURL, "/join") {
 				sc.HomepageURL = sceneURL
 
 				if sc.Title != "" {

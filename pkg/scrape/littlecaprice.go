@@ -7,7 +7,6 @@ import (
 
 	"github.com/gocolly/colly/v2"
 	"github.com/mozillazg/go-slugify"
-	"github.com/thoas/go-funk"
 	"github.com/xbapps/xbvr/pkg/models"
 )
 
@@ -93,7 +92,7 @@ func LittleCaprice(wg *models.ScrapeWG, updateSite bool, knownScenes []string, o
 		sceneURL := e.Request.AbsoluteURL(e.Attr("href"))
 
 		// If scene exists in database, there's no need to scrape
-		if !funk.ContainsString(knownScenes, sceneURL) {
+		if !isKnownScene(scraperID, knownScenes, sceneURL) {
 			//sceneCollector.Visit(sceneURL)
 			sceneCollector.Request("GET", sceneURL, nil, nil, nil)
 		}
@@ -109,7 +108,7 @@ func LittleCaprice(wg *models.ScrapeWG, updateSite bool, knownScenes []string, o
 
 	// Missing "Me and You" (my-first-time) scene
 	sceneURL := "https://www.littlecaprice-dreams.com/project/vr-180-little-caprice-my-first-time/"
-	if !funk.ContainsString(knownScenes, sceneURL) {
+	if !isKnownScene(scraperID, knownScenes, sceneURL) {
 		ctx := colly.NewContext()
 		ctx.Put("cover", "https://www.littlecaprice-dreams.com/wp-content/uploads/2021/08/wpp_Little-Caprice-Virtual-Reality_.jpg")
 

@@ -54,9 +54,8 @@ None. No existing spec describes scrape success or failure reporting.
 ## Impact
 
 - `pkg/scrape`: every scraper's listing callback is where enumeration happens. There are
-  ~45 scraper files, so the counter should live in shared code rather than being
-  duplicated per file — `createCollector` and the `ScrapeWG` already thread through all
-  of them and are candidates.
+  ~45 scraper files, so the counter lives in shared code rather than being duplicated per
+  file.
 - `pkg/models`: a new health record, and a migration to create it.
 - `pkg/api` and `ui/src`: surfacing suspect sites in the scraper list.
 - No change to scene or file matching, and no change to what a healthy scrape produces.

@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/mozillazg/go-slugify"
-	"github.com/thoas/go-funk"
 	"github.com/xbapps/xbvr/pkg/models"
 )
 
@@ -82,7 +81,7 @@ func WetVR(wg *models.ScrapeWG, updateSite bool, knownScenes []string, out chan<
 		sceneURL := fmt.Sprintf("%s/video/%s", baseURL, scene.CachedSlug)
 
 		// Skip if scene already exists in database
-		if funk.ContainsString(knownScenes, sceneURL) {
+		if isKnownScene(scraperID, knownScenes, sceneURL) {
 			return
 		}
 

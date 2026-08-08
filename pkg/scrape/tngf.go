@@ -8,7 +8,6 @@ import (
 	"github.com/gocolly/colly/v2"
 	"github.com/mozillazg/go-slugify"
 	"github.com/nleeper/goment"
-	"github.com/thoas/go-funk"
 	"github.com/xbapps/xbvr/pkg/models"
 )
 
@@ -154,7 +153,7 @@ func TNGFVR(wg *models.ScrapeWG, updateSite bool, knownScenes []string, out chan
 		ctx.Put("date", strings.TrimSpace(e.ChildText("div.scene-info span.scene-date")))
 
 		// If scene exist in database, there's no need to scrape
-		if !funk.ContainsString(knownScenes, sceneURL) {
+		if !isKnownScene(scraperID, knownScenes, sceneURL) {
 			sceneCollector.Request("GET", sceneURL, nil, ctx, nil)
 		}
 	})

@@ -154,7 +154,7 @@ func LethalHardcoreSite(wg *models.ScrapeWG, updateSite bool, knownScenes []stri
 		})
 
 		// If scene exist in database, there's no need to scrape
-		if !funk.ContainsString(knownScenes, sceneURL) {
+		if !isKnownScene(scraperID, knownScenes, sceneURL) {
 			sceneCollector.Request("GET", sceneURL, nil, ctx, nil)
 		}
 	})
