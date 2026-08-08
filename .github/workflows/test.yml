@@ -40,8 +40,13 @@ jobs:
       # -tags=json1 is required by the SQLite driver.
       # -vet=off is required until the pre-existing vet findings in scrape, tasks,
       # migrations and dms are fixed; without it `go test` fails to build first.
+      #
+      # pkg/tray is excluded: it links getlantern/systray, which needs GTK dev
+      # headers via pkg-config that the runner does not carry. It holds no tests
+      # and .goreleaser.yml only builds it for Windows, so nothing is lost by
+      # skipping it on a Linux runner.
       - name: Test
-        run: go test -tags=json1 -vet=off ./...
+        run: go test -tags=json1 -vet=off $(go list ./... | grep -v '/pkg/tray$')
 
       - name: Build
         env:
