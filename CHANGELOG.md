@@ -1,5 +1,15 @@
 # xbvr
 
+## 0.6.0
+
+### Minor Changes
+
+- 39d39b5: When matching a file to a scene, rank scenes of a similar length higher. The filename text search alone often misses the right scene, and duration is a strong signal it ignored.
+
+### Patch Changes
+
+- 067ab72: Fix scenes whose titles contain an apostrophe being unmatchable. Searching for such a title found nothing whether the apostrophe was typed or omitted, which also made the affected files impossible to match from the file list.
+
 ## 0.5.2
 
 ### Patch Changes
