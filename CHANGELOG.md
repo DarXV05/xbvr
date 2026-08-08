@@ -1,5 +1,21 @@
 # xbvr
 
+## 0.6.0
+
+### Minor Changes
+
+- 39d39b5: When matching a file to a scene, rank scenes of a similar length higher. The filename text search alone often misses the right scene, and duration is a strong signal it ignored.
+
+### Patch Changes
+
+- 067ab72: Fix scenes whose titles contain an apostrophe being unmatchable. Searching for such a title found nothing whether the apostrophe was typed or omitted, which also made the affected files impossible to match from the file list.
+
+## 0.5.2
+
+### Patch Changes
+
+- 839f932: Fix RealJamVR and PornCornVR returning 403 on every scrape. Both sites blocklist the exact User-Agent string XBVR shipped, so the scrapers failed silently on every scheduled run while still reporting success.
+
 ## 0.5.1
 
 ### Patch Changes

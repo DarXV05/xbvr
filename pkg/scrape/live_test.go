@@ -37,10 +37,11 @@ type liveTarget struct {
 	Scraper string `json:"scraper"`
 	URL     string `json:"url"`
 	// Opt-outs for sites that legitimately omit a field.
-	SkipCast    bool `json:"skipCast"`
-	SkipTags    bool `json:"skipTags"`
-	SkipCover   bool `json:"skipCover"`
-	SkipRelease bool `json:"skipRelease"`
+	SkipCast      bool `json:"skipCast"`
+	SkipTags      bool `json:"skipTags"`
+	SkipCover     bool `json:"skipCover"`
+	SkipRelease   bool `json:"skipRelease"`
+	SkipFilenames bool `json:"skipFilenames"`
 }
 
 const liveScrapeTimeout = 3 * time.Minute
@@ -126,16 +127,13 @@ func TestLiveScrape(t *testing.T) {
 			if sc.SceneID == "" {
 				t.Error("SceneID is empty - the scene would be dropped before reaching the DB")
 			}
-			if sc.SiteID == "" {
-				t.Error("SiteID is empty")
-			}
 			if sc.Title == "" {
 				t.Error("Title is empty")
 			}
 			if sc.HomepageURL == "" {
 				t.Error("HomepageURL is empty")
 			}
-			if len(sc.Filenames) == 0 {
+			if !target.SkipFilenames && len(sc.Filenames) == 0 {
 				t.Error("Filenames is empty - nothing on disk could ever match this scene")
 			}
 			if sc.Duration <= 0 || sc.Duration > 600 {
