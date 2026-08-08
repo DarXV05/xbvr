@@ -1,5 +1,11 @@
 # xbvr
 
+## 0.5.1
+
+### Patch Changes
+
+- 2ad1f0b: Releases no longer create a GitHub release page or upload tarballs. The Docker image is the deliverable and CHANGELOG.md carries the release notes.
+
 ## 0.5.0
 
 ### Minor Changes
