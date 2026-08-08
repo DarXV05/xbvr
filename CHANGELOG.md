@@ -1,5 +1,11 @@
 # xbvr
 
+## 0.8.0
+
+### Minor Changes
+
+- bbcf539: Show which scrapers have silently stopped working. The scraper list now marks a site suspect when it has recognised no scenes on three consecutive runs, which distinguishes a scraper broken by a site change from one that simply has nothing new. Sites that report no signal are shown as unknown rather than healthy.
+
 ## 0.7.0
 
 ### Minor Changes
