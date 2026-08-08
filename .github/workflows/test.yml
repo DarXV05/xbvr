@@ -1,0 +1,49 @@
+name: test
+
+# Fork-only workflow. Upstream runs gofmt and nothing else, so the scraper tests
+# never execute there. This is the point of the fork having its own CI: a site
+# redesign that breaks a scraper should show up as a red build, not as scenes
+# quietly failing to import weeks later.
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  # Scrapers break when a site changes, not when we push. Check on a schedule too.
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Install Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: 1.26.x
+
+      - name: Check formatting
+        run: |
+          unformatted=$(gofmt -l . | grep -v '^node_modules/' || true)
+          if [ -n "$unformatted" ]; then
+            echo "These files are not gofmt-clean:"
+            echo "$unformatted"
+            exit 1
+          fi
+
+      # -tags=json1 is required by the SQLite driver.
+      # -vet=off is required until the pre-existing vet findings in scrape, tasks,
+      # migrations and dms are fixed; without it `go test` fails to build first.
+      - name: Test
+        run: go test -tags=json1 -vet=off ./...
+
+      - name: Build
+        env:
+          CGO_ENABLED: "1"
+        run: go build -tags=json1 -o /dev/null main.go
