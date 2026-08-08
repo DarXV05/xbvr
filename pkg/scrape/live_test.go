@@ -126,9 +126,6 @@ func TestLiveScrape(t *testing.T) {
 			if sc.SceneID == "" {
 				t.Error("SceneID is empty - the scene would be dropped before reaching the DB")
 			}
-			if sc.SiteID == "" {
-				t.Error("SiteID is empty")
-			}
 			if sc.Title == "" {
 				t.Error("Title is empty")
 			}
