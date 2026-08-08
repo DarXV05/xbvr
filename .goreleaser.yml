@@ -78,5 +78,6 @@ changelog:
     - '^fix\(deps\):'
     - "^test:"
 
+# the docker image is the deliverable; CHANGELOG.md carries the notes
 release:
-  disable: false
+  disable: true
