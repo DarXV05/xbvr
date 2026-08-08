@@ -1,6 +1,6 @@
 {
   "name": "xbvr",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "private": true,
   "scripts": {
     "serve": "cd ui && vue-cli-service serve",
