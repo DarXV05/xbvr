@@ -1,5 +1,6 @@
 {
   "name": "xbvr",
+  "version": "0.4.39",
   "private": true,
   "scripts": {
     "serve": "cd ui && vue-cli-service serve",
@@ -9,7 +10,10 @@
     "i18n:extract": "yarn vue-i18n-extract report -v './ui/src/**/*.?(js|vue)' -l './ui/src/locales/*.?(js|json)'",
     "dev": "concurrently 'go generate' 'npm:dev:ui' 'npm:dev:go'",
     "dev:go": "air",
-    "dev:ui": "cd ui && vue-cli-service build --watch --silent"
+    "dev:ui": "cd ui && vue-cli-service build --watch --silent",
+    "changeset": "changeset",
+    "changeset:version": "changeset version",
+    "changeset:tag": "changeset tag"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "5.15.4",
@@ -38,6 +42,7 @@
   "devDependencies": {
     "@babel/core": "7.29.0",
     "@babel/eslint-parser": "7.28.6",
+    "@changesets/cli": "^2.31.1",
     "@vue/cli-plugin-babel": "5.0.9",
     "@vue/cli-plugin-eslint": "5.0.9",
     "@vue/cli-service": "5.0.9",

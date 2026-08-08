@@ -1,0 +1,51 @@
+name: version
+
+# Changesets drives releases. Every push to main opens or updates a version PR;
+# merging it bumps package.json, writes CHANGELOG.md and pushes a v<version> tag,
+# which is what release.yml triggers on.
+#
+# The token here is deliberately the PAT, not the default GITHUB_TOKEN: a tag
+# pushed with GITHUB_TOKEN does not start another workflow, so release.yml would
+# never fire and the release would silently never happen.
+
+on:
+  push:
+    branches: [ main ]
+
+concurrency:
+  group: version-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          # changeset tag reads existing tags to decide what is new
+          fetch-depth: 0
+          token: ${{ secrets.GORELEASER_ACCESS_TOKEN }}
+
+      - name: Install Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile --ignore-engines
+
+      - name: Create version PR or tag the release
+        uses: changesets/action@v1
+        with:
+          version: yarn changeset:version
+          publish: yarn changeset:tag
+          commit: "chore: version packages"
+          title: "chore: version packages"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GORELEASER_ACCESS_TOKEN }}
