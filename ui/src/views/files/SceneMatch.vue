@@ -37,6 +37,39 @@
           </div>
           <video v-if="showPlayer" class="match-preview mt-2" controls preload="metadata" :src="fileUrl"></video>
 
+          <div class="mt-2" v-if="file.oshash">
+            <b-button size="is-small" icon-left="magnify" :loading="hashSearching" @click="searchStashdbByHash">
+              {{ $t('Search StashDB by hash') }}
+            </b-button>
+          </div>
+          <div v-if="hashResult" class="mt-2">
+            <p v-if="hashResult.message" class="is-size-7">{{ hashResult.message }}</p>
+            <div v-for="m in hashResult.matches" :key="m.stash_id" class="stashMatch p-2 mb-2">
+              <div class="is-flex">
+                <img v-if="m.cover" :src="m.cover" class="stashCover mr-2"/>
+                <div>
+                  <a :href="m.stash_url" target="_blank" rel="noreferrer">{{ m.title || m.stash_id }}</a>
+                  <br/>
+                  <small>{{ m.studio }}<span v-if="m.release_date"> &middot; {{ m.release_date }}</span></small>
+                  <br/>
+                  <small v-if="m.linked_scene_id">
+                    {{ $t('Already linked to') }} {{ m.linked_scene_id }}
+                  </small>
+                </div>
+              </div>
+              <div v-if="m.candidates.length" class="mt-2">
+                <small>{{ $t('Local scenes sharing the slug') }} <code>{{ m.slug }}</code></small>
+                <div v-for="c in m.candidates" :key="c.id" class="is-flex is-align-items-center mt-1">
+                  <span class="is-size-7 mr-2">{{ c.scene_id }} &mdash; {{ c.site }}</span>
+                  <b-button size="is-small" type="is-primary" @click="linkAndAssign(m.stash_id, c.scene_id)">
+                    {{ $t('Link & assign') }}
+                  </b-button>
+                </div>
+              </div>
+              <p v-else class="is-size-7 mt-1">{{ $t('No local scene shares this slug') }}</p>
+            </div>
+          </div>
+
           <b-field grouped class="mt-3">
             <b-input v-model="scrapeUrl" size="is-small" expanded
                      :placeholder="$t('Paste a scene URL to scrape')" @keyup.native.enter="scrapeSceneUrl"/>
@@ -158,6 +191,8 @@ export default {
       scraping: false,
       scrapers: [],
       pickScraper: false,
+      hashSearching: false,
+      hashResult: null,
       format,
       parseISO
     }
@@ -288,6 +323,23 @@ export default {
       } else {
         return u
       }
+    },
+    searchStashdbByHash: async function searchStashdbByHash () {
+      this.hashSearching = true
+      this.hashResult = null
+      try {
+        this.hashResult = await ky.get(
+          `/api/extref/stashdb/search_by_hash/${this.toInt(this.file.id)}`, { timeout: 6e5 }
+        ).json()
+      } catch (e) {
+        this.hashResult = { message: this.$t('StashDB lookup failed'), matches: [] }
+      } finally {
+        this.hashSearching = false
+      }
+    },
+    linkAndAssign: async function linkAndAssign (stashId, sceneId) {
+      await ky.get(`/api/extref/stashdb/link2scene/${sceneId}/${stashId}`, { timeout: 6e5 })
+      await this.assign(sceneId)
     },
     assign: async function assign (scene_id) {
       await ky.post('/api/files/match', {
@@ -463,5 +515,16 @@ h6 + small > .hashDetails > code {
     width: 100%;
     max-height: 40vh;
     background: #000;
+  }
+
+  .stashMatch {
+    border: 1px solid #dbdbdb;
+    border-radius: 4px;
+  }
+
+  .stashCover {
+    width: 90px;
+    height: auto;
+    object-fit: cover;
   }
 </style>

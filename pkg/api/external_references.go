@@ -54,6 +54,9 @@ func (i ExternalReference) WebService() *restful.WebService {
 		Writes(models.Scene{}))
 	ws.Route(ws.GET("/stashdb/search/{scene-id}").To(i.searchForStashdbScene).
 		Metadata(restfulspec.KeyOpenAPITags, tags))
+	ws.Route(ws.GET("/stashdb/search_by_hash/{file-id}").To(i.searchStashdbByHash).
+		Metadata(restfulspec.KeyOpenAPITags, tags).
+		Writes(StashHashSearchResult{}))
 	ws.Route(ws.GET("/stashdb/link2actor/{actor-id}/{stashdb-id}").To(i.linkActor2Stashdb).
 		Metadata(restfulspec.KeyOpenAPITags, tags).
 		Writes(models.Scene{}))
