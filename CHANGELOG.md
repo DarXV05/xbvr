@@ -1,5 +1,11 @@
 # xbvr
 
+## 0.8.1
+
+### Patch Changes
+
+- 6b5a185: Fix the CovertJapan scraper importing nothing. Its studio URL uses a hyphenated slug that did not match the internal studio lookup, so the scraper never queried SexLikeReal at all while still reporting a successful run.
+
 ## 0.8.0
 
 ### Minor Changes
