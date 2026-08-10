@@ -1,5 +1,13 @@
 # xbvr
 
+## 0.9.1
+
+### Patch Changes
+
+- 638025c: Greenscreen scenes now use DeoVR's automatic chroma key again. Scenes scraped with an empty, disabled chroma key were sending that placeholder to the player, which turned its own keying off and left the green background visible until you set the channels by hand.
+- 638025c: Fix a crash when DeoVR or HereSphere opened a scene that has no matched video file. The request failed with no response at all, which appears as a gateway error behind a reverse proxy.
+- a5df691: Show the file's oshash in the "Match file to scene" dialog. Clicking it selects the whole hash so it can be copied in one go.
+
 ## 0.9.0
 
 ### Minor Changes
