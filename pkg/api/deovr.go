@@ -464,7 +464,7 @@ func (i DeoVRResource) getDeoScene(req *restful.Request, resp *restful.Response)
 	var hasAlpha bool = false
 
 	// Set Scene projection IF either single video or all videos have same projection type
-	if sceneMultiProjection {
+	if sceneMultiProjection && len(videoFiles) > 0 {
 		if videoFiles[0].VideoProjection == "mkx200" ||
 			videoFiles[0].VideoProjection == "mkx220" ||
 			videoFiles[0].VideoProjection == "rf52" ||
@@ -568,7 +568,7 @@ func (i DeoVRResource) getDeoScene(req *restful.Request, resp *restful.Response)
 		deoScene.VideoPreview = fmt.Sprintf("%v/api/dms/preview/%v", session.DeoRequestHost, scene.SceneID)
 	}
 
-	if gjson.Valid(scene.ChromaKey) || hasAlpha {
+	if usableChromaKey(scene.ChromaKey) || hasAlpha {
 		deoPtScene := DeoScenePassthrough{
 			ID:               scene.ID,
 			Authorized:       1,
@@ -597,11 +597,11 @@ func (i DeoVRResource) getDeoScene(req *restful.Request, resp *restful.Response)
 			ChromaKey: DeoSceneChromaKey{
 				Enabled:   chromaKey.Get("enabled").String(),
 				HasAlpha:  chromaKey.Get("hasAlpha").String(),
-				H:         chromaKey.Get("h").Float(),
+				H:         chromaKeyFloat(chromaKey, "h", "hue"),
 				Opacity:   chromaKey.Get("opacity").Float(),
-				S:         chromaKey.Get("s").Float(),
+				S:         chromaKeyFloat(chromaKey, "s", "saturation"),
 				Threshold: chromaKey.Get("threshold").Float(),
-				V:         chromaKey.Get("v").Float(),
+				V:         chromaKeyFloat(chromaKey, "v", "value"),
 			},
 			VideoPreview: deoScene.VideoPreview,
 		}
@@ -701,4 +701,28 @@ func filesToDeoList(req *restful.Request, files []models.File) []DeoListItem {
 		list = append(list, item)
 	}
 	return list
+}
+
+// a disabled all-zero key is a scraper placeholder, and sending it overrides the player's own keying
+func usableChromaKey(raw string) bool {
+	if !gjson.Valid(raw) {
+		return false
+	}
+	if enabled := gjson.Get(raw, "enabled"); enabled.Exists() && enabled.Bool() {
+		return true
+	}
+	for _, k := range []string{"h", "hue", "s", "saturation", "v", "value", "threshold"} {
+		if gjson.Get(raw, k).Float() != 0 {
+			return true
+		}
+	}
+	return gjson.Get(raw, "hasAlpha").Bool()
+}
+
+// scrapers store these channels under long names; the DeoVR payload uses short ones
+func chromaKeyFloat(ck gjson.Result, short string, long string) float64 {
+	if v := ck.Get(short); v.Exists() && v.Float() != 0 {
+		return v.Float()
+	}
+	return ck.Get(long).Float()
 }
