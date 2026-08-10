@@ -36,7 +36,11 @@
           <b-field grouped class="mt-3">
             <b-input v-model="scrapeUrl" size="is-small" expanded
                      :placeholder="$t('Paste a scene URL to scrape')" @keyup.native.enter="scrapeSceneUrl"/>
-            <b-select v-model="scrapeSite" size="is-small" :placeholder="$t('Scraper')">
+            <b-tag v-if="detectedScraper && !pickScraper" type="is-info is-light" class="mt-1">
+              {{ detectedScraper.name }}
+              <a class="ml-2" @click="pickScraper = true">{{ $t('change') }}</a>
+            </b-tag>
+            <b-select v-else-if="scrapeUrl" v-model="scrapeSite" size="is-small" :placeholder="$t('Scraper')">
               <option v-for="s in scraperOptions" :key="s.id" :value="s.id">{{ s.name }}</option>
             </b-select>
             <b-button size="is-small" type="is-primary" :loading="scraping"
@@ -149,6 +153,7 @@ export default {
       scrapeSite: null,
       scraping: false,
       scrapers: [],
+      pickScraper: false,
       format,
       parseISO
     }
@@ -162,14 +167,18 @@ export default {
     },
     scraperOptions () {
       return [...this.scrapers].sort((a, b) => a.name.localeCompare(b.name))
+    },
+    detectedScraper () {
+      if (!this.scrapeSite) return null
+      return this.scrapers.find(s => s.id === this.scrapeSite) || null
     }
   },
   watch: {
     scrapeUrl (url) {
       const match = this.scraperForUrl(url)
-      if (match) {
-        this.scrapeSite = match.id
-      }
+      this.scrapeSite = match ? match.id : null
+      // Only make the user choose when the URL could not resolve one.
+      this.pickScraper = !match
     }
   },
   mounted () {
