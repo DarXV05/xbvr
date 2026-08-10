@@ -464,7 +464,7 @@ func (i DeoVRResource) getDeoScene(req *restful.Request, resp *restful.Response)
 	var hasAlpha bool = false
 
 	// Set Scene projection IF either single video or all videos have same projection type
-	if sceneMultiProjection {
+	if sceneMultiProjection && len(videoFiles) > 0 {
 		if videoFiles[0].VideoProjection == "mkx200" ||
 			videoFiles[0].VideoProjection == "mkx220" ||
 			videoFiles[0].VideoProjection == "rf52" ||
