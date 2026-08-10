@@ -24,6 +24,10 @@
             <span v-if="file.type == 'video'">{{ file.video_width }}x{{ file.video_height }}, </span>
             <span v-if="file.duration > 0">{{ Math.floor(file.duration / 60) }} min,</span>
             {{ format(parseISO(file.created_time), "yyyy-MM-dd") }}
+            <template v-if="file.oshash">
+              <br/>
+              <span class="hashDetails">oshash <code>{{ file.oshash }}</code></span>
+            </template>
           </small>
 
           <div class="mt-2" v-if="file.type === 'video'">
@@ -410,6 +414,18 @@ h6 + small {
 
 h6 + small > .pathDetails {
   color: #B0B0B0;
+}
+
+h6 + small > .hashDetails {
+  color: #B0B0B0;
+}
+
+h6 + small > .hashDetails > code {
+  background: none;
+  color: inherit;
+  padding: 0;
+  font-size: inherit;
+  user-select: all;
 }
 
 .modal-card {
