@@ -26,6 +26,29 @@
             {{ format(parseISO(file.created_time), "yyyy-MM-dd") }}
           </small>
 
+          <div class="mt-2" v-if="file.type === 'video'">
+            <b-button size="is-small" icon-left="play" @click="showPlayer = !showPlayer">
+              {{ showPlayer ? $t('Hide video') : $t('Play video') }}
+            </b-button>
+          </div>
+          <video v-if="showPlayer" class="match-preview mt-2" controls preload="metadata" :src="fileUrl"></video>
+
+          <b-field grouped class="mt-3">
+            <b-input v-model="scrapeUrl" size="is-small" expanded
+                     :placeholder="$t('Paste a scene URL to scrape')" @keyup.native.enter="scrapeSceneUrl"/>
+            <b-tag v-if="detectedScraper && !pickScraper" type="is-info is-light" class="mt-1">
+              {{ detectedScraper.name }}
+              <a class="ml-2" @click="pickScraper = true">{{ $t('change') }}</a>
+            </b-tag>
+            <b-select v-else-if="scrapeUrl" v-model="scrapeSite" size="is-small" :placeholder="$t('Scraper')">
+              <option v-for="s in scraperOptions" :key="s.id" :value="s.id">{{ s.name }}</option>
+            </b-select>
+            <b-button size="is-small" type="is-primary" :loading="scraping"
+                      :disabled="!scrapeUrl || !scrapeSite" @click="scrapeSceneUrl">
+              {{ $t('Scrape') }}
+            </b-button>
+          </b-field>
+
           <b-field grouped>
             <b-taglist>
               <b-tag class="tag is-info is-small">{{$t('Search Fields')}}</b-tag>
@@ -125,6 +148,12 @@ export default {
       dataNumResponses: 0,
       currentPage: 1,
       queryString: '',
+      showPlayer: false,
+      scrapeUrl: '',
+      scrapeSite: null,
+      scraping: false,
+      scrapers: [],
+      pickScraper: false,
       format,
       parseISO
     }
@@ -132,10 +161,29 @@ export default {
   computed: {
     file () {
       return this.$store.state.overlay.match.file
+    },
+    fileUrl () {
+      return this.file ? `/api/dms/file/${this.file.id}?dnt=true` : ''
+    },
+    scraperOptions () {
+      return [...this.scrapers].sort((a, b) => a.name.localeCompare(b.name))
+    },
+    detectedScraper () {
+      if (!this.scrapeSite) return null
+      return this.scrapers.find(s => s.id === this.scrapeSite) || null
+    }
+  },
+  watch: {
+    scrapeUrl (url) {
+      const match = this.scraperForUrl(url)
+      this.scrapeSite = match ? match.id : null
+      // Only make the user choose when the URL could not resolve one.
+      this.pickScraper = !match
     }
   },
   mounted () {
     this.initView()
+    this.loadScrapers()
   },
   methods: {
     initView () {
@@ -154,6 +202,58 @@ export default {
           .replace(/[._+'’`-]/g, ' ').replace(/\s+/g, ' ').trim()
           .split(' ').filter(isNotCommonWord).join(' '))
       this.loadData()
+    },
+    loadScrapers: async function loadScrapers () {
+      try {
+        const resp = await ky.get('/api/options/state').json()
+        this.scrapers = (resp.scrapers || []).filter(s => s.id && s.name)
+      } catch (e) {
+        this.scrapers = []
+      }
+    },
+    scraperForUrl (url) {
+      let host = ''
+      try {
+        host = new URL(url.trim()).hostname.replace(/^www\./, '').toLowerCase()
+      } catch (e) {
+        return null
+      }
+      if (!host) return null
+      const candidates = this.scrapers.filter(s => {
+        const d = (s.domain || '').replace(/^www\./, '').toLowerCase()
+        return d && (host === d || host.endsWith('.' + d))
+      })
+      if (candidates.length === 0) return null
+      // A single-scene scraper handles an arbitrary URL on a shared platform,
+      // where the per-studio ones only cover their own catalogue.
+      const single = candidates.find(s => s.id.endsWith('-single_scene'))
+      if (single) return single
+      // Several studios can share one domain, so prefer the id the host names.
+      const bare = host.replace(/\.[a-z]+$/, '').replace(/\./g, '')
+      return candidates.find(s => s.id.toLowerCase() === bare) || candidates[0]
+    },
+    scrapeSceneUrl: async function scrapeSceneUrl () {
+      if (!this.scrapeUrl || !this.scrapeSite || this.scraping) return
+      this.scraping = true
+      try {
+        const data = await ky.post('/api/task/singlescrape', {
+          timeout: false,
+          json: { site: this.scrapeSite, sceneurl: this.scrapeUrl.trim(), additionalinfo: [] }
+        }).json()
+
+        if (data.status === 'OK' && data.scene && data.scene.scene_id) {
+          this.queryString = '+id:' + data.scene.scene_id
+          await this.loadData()
+          this.scrapeUrl = ''
+          this.$buefy.toast.open({ message: this.$t('Scraped and added to the results'), type: 'is-success', duration: 4000 })
+        } else {
+          this.$buefy.toast.open({ message: this.$t('Nothing was scraped from that URL'), type: 'is-warning', duration: 6000 })
+        }
+      } catch (e) {
+        this.$buefy.toast.open({ message: this.$t('Scraping failed'), type: 'is-danger', duration: 6000 })
+      } finally {
+        this.scraping = false
+      }
     },
     loadData: async function loadData () {
       const requestIndex = this.dataNumRequests
@@ -342,4 +442,10 @@ h6 + small > .pathDetails {
   left: 0;
   border-radius: 3px 0 0 3px;
 }
+
+  .match-preview {
+    width: 100%;
+    max-height: 40vh;
+    background: #000;
+  }
 </style>
